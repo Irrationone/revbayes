@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include <iostream> // for debug
 
 #include "RandomNumberFactory.h"
 #include "RandomNumberGenerator.h"

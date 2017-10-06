@@ -28,6 +28,8 @@ namespace RevBayesCore {
         void                                                computeRootLikelihood( size_t root, size_t left, size_t right);
         void                                                computeRootLikelihood( size_t root, size_t left, size_t right, size_t middle);
         void                                                computeTipLikelihood(const TopologyNode &node, size_t nIdx);
+
+        virtual void                                        renormalizeLnProbability(void);
         
         
     private:        
@@ -668,6 +670,98 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeTipLikel
         
     } // end-for over all mixture categories
     
+}
+
+// In the case where the naive sequence should be treated as root, renormalizes for stationary frequency probability terms for naive seq
+template<class charType>
+void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::renormalizeLnProbability( void )
+{
+    const std::string naive_name = "naive"; // placeholder
+    const size_t node_index;
+    try {
+        node_index = AbstractPhyloCTMCSiteHomogeneous<charType>::tau->getValue().getTipIndex(naive_name);
+    } catch (RbException e) {
+        return;
+    }
+
+    std::vector<std::vector<double> > ff;
+    this->getRootFrequencies(ff);
+
+    std::vector<double> site_mixture_probs = this->getMixtureProbs();
+
+    // std::cout << "Naive name " << naive_name << " at index " << node_index << "\n";
+
+    const std::vector<bool> &gap_node = this->gap_matrix[node_index];
+    const std::vector<unsigned long> &char_node = this->char_matrix[node_index];
+    const std::vector<RbBitSet> &amb_char_node = this->ambiguous_char_matrix[node_index];
+
+    double naive_prob = 0.0;
+
+    double naive_site;
+
+
+    for (size_t site = 0; site < this->pattern_block_size; ++site)
+    {
+
+        naive_site = 0.0;
+
+        for (size_t mixture = 0; mixture < this->num_site_mixtures; ++mixture)
+        {
+            const std::vector<double> &f = ff[mixture % ff.size()];
+
+            if ( gap_node[site] ) 
+            {
+                // since this is a gap we need to assume that the actual state could have been any state
+                naive_site = 1.0; // could exclude this, but for clarity
+            } 
+            else // we have observed a character
+            {
+                                    
+                if ( this->using_ambiguous_characters == true )
+                {
+                    // get the original character
+                    const RbBitSet &org_val = amb_char_node[site];
+                    
+                    if ( org_val.isSet(0) == true )
+                    {
+                        naive_site += site_mixture_probs[mixture] * f[0];
+                    }
+                    
+                    if ( org_val.isSet(1) == true )
+                    {
+                        naive_site += site_mixture_probs[mixture] * f[1];
+                    }
+                    
+                    if ( org_val.isSet(2) == true )
+                    {
+                        naive_site += site_mixture_probs[mixture] * f[2];
+                    }
+                    
+                    if ( org_val.isSet(3) == true )
+                    {
+                        naive_site += site_mixture_probs[mixture] * f[3];
+                    }
+                    
+                } 
+                else // no ambiguous characters in use
+                {
+                    
+                    // get the original character
+                    unsigned long org_val = char_node[site];
+                    
+                    // store the likelihood
+                    naive_site = f[org_val];
+                }
+                
+            } // end-if a gap state
+
+        }
+
+        naive_prob += log(naive_site);
+        
+    }
+
+    this->lnProb -= naive_prob;
 }
 
 

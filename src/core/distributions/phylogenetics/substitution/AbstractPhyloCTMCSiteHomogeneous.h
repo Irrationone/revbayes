@@ -136,6 +136,7 @@ namespace RevBayesCore {
         virtual void                                                        keepSpecialization(DagNode* affecter);
         virtual void                                                        restoreSpecialization(DagNode *restorer);
         virtual void                                                        touchSpecialization(DagNode *toucher, bool touchAll);
+        virtual void                                                        renormalizeLnProbability(void); // should be pure virtual but atm doesn't matter
         
         // pure virtual methods
         virtual void                                                        computeInternalNodeLikelihood(const TopologyNode &n, size_t nIdx, size_t l, size_t r) = 0;
@@ -793,6 +794,12 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::compress( void )
     // finally we resize the partial likelihood vectors to the new pattern counts
     resizeLikelihoodVectors();
     
+}
+
+template<class charType>
+void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::renormalizeLnProbability( void )
+{
+    // std::cout << "Doing nothing" << "\n";
 }
 
 
