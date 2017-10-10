@@ -869,7 +869,9 @@ double RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::computeLnProbab
         
         // sum the partials up
         this->lnProb = sumRootLikelihood();
-        
+
+        // renormalize ln probability if naive sequence exists
+        renormalizeLnProbability();
     }
     
     // if we are not in MCMC mode, then we need to (temporarily) free memory

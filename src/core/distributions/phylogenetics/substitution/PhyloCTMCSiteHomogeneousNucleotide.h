@@ -677,7 +677,7 @@ template<class charType>
 void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::renormalizeLnProbability( void )
 {
     const std::string naive_name = "naive"; // placeholder
-    const size_t node_index;
+    size_t node_index = 0;
     try {
         node_index = AbstractPhyloCTMCSiteHomogeneous<charType>::tau->getValue().getTipIndex(naive_name);
     } catch (RbException e) {
