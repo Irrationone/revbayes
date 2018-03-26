@@ -689,6 +689,8 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::renormalizeLnPr
 
     std::vector<double> site_mixture_probs = this->getMixtureProbs();
 
+    std::vector< size_t >::const_iterator patterns = this->pattern_counts.begin();
+
     // std::cout << "Naive name " << naive_name << " at index " << node_index << "\n";
 
     const std::vector<bool> &gap_node = this->gap_matrix[node_index];
@@ -700,14 +702,14 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::renormalizeLnPr
     double naive_site;
 
 
-    for (size_t site = 0; site < this->pattern_block_size; ++site)
+    for (size_t site = 0; site < this->pattern_block_size; ++site, ++patterns)
     {
 
         naive_site = 0.0;
 
         for (size_t mixture = 0; mixture < this->num_site_mixtures; ++mixture)
         {
-            const std::vector<double> &f = ff[mixture % ff.size()];
+            const std::vector<double> &f = ff[0];
 
             if ( gap_node[site] ) 
             {
@@ -757,8 +759,8 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::renormalizeLnPr
 
         }
 
-        naive_prob += log(naive_site);
-        
+        naive_prob += log(naive_site) * *patterns;
+
     }
 
     this->lnProb -= naive_prob;
