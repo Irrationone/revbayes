@@ -4,7 +4,7 @@ Naive sequence stationary probability terms removed from log likelihood in Phylo
 
 Could easily be extended for PhyloCTMCBinary, etc.
 
-At the moment, this only works if the input naive sequence has taxon name **naive**.
+At the moment, this only works if the input naive sequence has taxon name **naive** and one root distribution is specified.
 
 Could potentially be supplied as an argument, bit this makes modifications to `computeLnProbability` more complicated. 
 
